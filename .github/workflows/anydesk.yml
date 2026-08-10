@@ -1,1 +1,41 @@
+name: Windows Cloud PC - Anydesk
 
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Start Building...
+    runs-on: windows-latest
+    timeout-minutes: 10080
+
+    steps:
+      - name: Download AnyDesk
+        run: |
+          Write-Host "AnyDesk 다운로드 중..."
+          Invoke-WebRequest -Uri "https://download.anydesk.com/AnyDesk.exe" -OutFile "AnyDesk.exe"
+
+      - name: Install AnyDesk
+        shell: cmd
+        run: |
+          echo AnyDesk 정식 설치를 시작합니다...
+          AnyDesk.exe --install "C:\AnyDesk" --start-with-win --silent
+          timeout /t 15 /nobreak >nul
+          echo EkoHub1234!|"C:\AnyDesk\AnyDesk.exe" --set-password
+
+      - name: Show AnyDesk ID
+        shell: cmd
+        run: |
+          echo 접속 ID를 가져오는 중입니다. 잠시만 기다려주세요...
+          timeout /t 10 /nobreak >nul
+          for /f "delims=" %%i in ('"C:\AnyDesk\AnyDesk.exe" --get-id') do set AnydeskId=%%i
+          echo =================================================
+          echo 가상 컴퓨터 준비 완료!
+          echo AnyDesk ID: %AnydeskId%
+          echo 접속 비밀번호: EkoHub1234!
+          echo =================================================
+
+      - name: Time Counter (Keep Alive)
+        run: |
+          Write-Host "가상 컴퓨터를 대기 상태로 유지합니다..."
+          Start-Sleep -Seconds 604800
